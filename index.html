@@ -1,0 +1,216 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的AI学习之旅</title>
+    <style>
+        /* CSS 控制网页的颜色、大小和布局。 */
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            color: #243b53;
+            background: linear-gradient(135deg, #eef8ff 0%, #dceeff 55%, #e8edff 100%);
+        }
+
+        .card {
+            width: 100%;
+            max-width: 560px;
+            padding: 48px 36px;
+            text-align: center;
+            background: #ffffff;
+            border-radius: 5px;
+            box-shadow: 0 20px 60px rgba(48, 104, 168, 0.12);
+        }
+
+        .badge {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 8px 16px;
+            border-radius: 999px;
+            background: #edf5ff;
+            color: #2866b4;
+            font-size: 13px;
+            letter-spacing: 1px;
+        }
+
+        h1 {
+            margin: 0 0 16px;
+            font-size: clamp(26px, 5vw, 36px);
+            line-height: 1.4;
+        }
+
+        p {
+            margin: 0;
+            color: #61758b;
+            font-size: 16px;
+            line-height: 1.9;
+        }
+
+        .encouragement {
+            margin-top: 8px;
+            font-size: 14px;
+        }
+
+        button {
+            margin-top: 30px;
+            padding: 14px 32px;
+            border: 0;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #3986ee, #2563d6);
+            color: white;
+            font: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(37, 99, 214, 0.22);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(37, 99, 214, 0.3);
+        }
+
+        button:focus-visible {
+            outline: 3px solid #80b6ff;
+            outline-offset: 4px;
+        }
+
+        button:active { transform: translateY(0); }
+
+        .study-plan {
+            margin-top: 32px;
+            padding-top: 28px;
+            border-top: 1px solid #e5eef8;
+            text-align: left;
+        }
+
+        .study-plan h2 {
+            margin: 0 0 6px;
+            font-size: 21px;
+        }
+
+        .progress {
+            color: #2866b4;
+            font-size: 14px;
+        }
+
+        .task-list {
+            display: grid;
+            gap: 10px;
+            margin: 16px 0 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .task-list label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            background: #f2f7ff;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .task-list label:hover { background: #e8f1ff; }
+
+        .task-list input {
+            width: 18px;
+            height: 18px;
+            margin: 0;
+            accent-color: #2563d6;
+            cursor: pointer;
+        }
+
+        .task-list input:checked + span {
+            color: #61758b;
+            text-decoration: line-through;
+        }
+
+        .save-note {
+            margin-top: 12px;
+            font-size: 12px;
+        }
+
+        @media (max-width: 480px) {
+            .card { padding: 36px 22px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            button { transition: none; }
+            button:hover { transform: none; }
+        }
+    </style>
+</head>
+<body>
+    <!-- HTML 描述网页内容：标题、文字和按钮。 -->
+    <main class="card">
+    <span class="badge">探索 · 学习 · 成长</span>
+    <h1>我的AI学习之旅</h1>
+    <p>今天是我学习编程的第二课。</p>
+    <p class="encouragement">从第一个网页开始，让 AI 陪我把想法变成现实。</p>
+    <button onclick="alert('我已经学会修改代码了！')">
+        点击我
+    </button>
+    <section class="study-plan" aria-labelledby="plan-title">
+        <h2 id="plan-title">每日学习计划</h2>
+        <p id="task-progress" class="progress" role="status" aria-live="polite">已完成0/3项</p>
+        <ul class="task-list">
+            <li><label><input type="checkbox" data-task="html"><span>学习HTML</span></label></li>
+            <li><label><input type="checkbox" data-task="codex"><span>练习Codex</span></label></li>
+            <li><label><input type="checkbox" data-task="github"><span>了解GitHub</span></label></li>
+        </ul>
+        <p id="save-note" class="save-note">勾选后自动保存在当前浏览器中。</p>
+    </section>
+    </main>
+    <script>
+        // JavaScript 负责读取记录、更新完成数量和保存勾选状态。
+        const storageKey = 'ai-learning-tasks-v1';
+        const tasks = Array.from(document.querySelectorAll('[data-task]'));
+        const progress = document.getElementById('task-progress');
+        const saveNote = document.getElementById('save-note');
+
+        function updateProgress() {
+            const completed = tasks.filter(task => task.checked).length;
+            progress.textContent = `已完成${completed}/${tasks.length}项`;
+        }
+
+        // 浏览器无法使用存储或记录损坏时，清单仍然可以勾选。
+        try {
+            const saved = JSON.parse(localStorage.getItem(storageKey) || '{}');
+            if (saved && typeof saved === 'object' && !Array.isArray(saved)) {
+                tasks.forEach(task => {
+                    task.checked = saved[task.dataset.task] === true;
+                });
+            }
+        } catch {
+            saveNote.textContent = '未能读取保存记录；你仍然可以勾选任务。';
+        }
+
+        tasks.forEach(task => {
+            task.addEventListener('change', () => {
+                updateProgress();
+                const state = {};
+                tasks.forEach(item => { state[item.dataset.task] = item.checked; });
+                try {
+                    localStorage.setItem(storageKey, JSON.stringify(state));
+                    saveNote.textContent = '已自动保存在当前浏览器中。';
+                } catch {
+                    saveNote.textContent = '当前浏览器无法保存记录，刷新后可能丢失进度。';
+                }
+            });
+        });
+
+        updateProgress();
+    </script>
+</body>
+</html>
